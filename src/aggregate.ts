@@ -281,6 +281,8 @@ export interface McpAggregateInput {
   probes: McpPanelSnapshot['probes']
   /** Absolute profile patch-layer path, or null. */
   patchFile: string | null
+  /** Read-only cross-layer MCP config inventory (profile layer + agent presets). */
+  configLayers: McpPanelSnapshot['configLayers']
   /** Suggested panel refresh interval in ms (`0` = on demand). */
   refreshIntervalMs: number
   /** Resources/Prompts availability (feature-detected upstream catalog seam). */
@@ -301,7 +303,7 @@ export interface McpAggregateInput {
  * @returns the wire snapshot.
  */
 export function aggregateSnapshot(input: McpAggregateInput): McpPanelSnapshot {
-  const { rows, groups, facts, probes, patchFile, refreshIntervalMs, capabilities, trial, writeEnabled, catalog } = input
+  const { rows, groups, facts, probes, patchFile, refreshIntervalMs, capabilities, trial, writeEnabled, catalog, configLayers } = input
   // One view per namespace: the enabled row wins; otherwise the first row.
   const rowsByName = new Map<string, McpLoaderRow>()
   for (const row of rows) {
@@ -317,6 +319,7 @@ export function aggregateSnapshot(input: McpAggregateInput): McpPanelSnapshot {
   return {
     observed: facts.statuses.size > 0,
     patchFile,
+    configLayers,
     refreshIntervalMs,
     servers,
     probes,

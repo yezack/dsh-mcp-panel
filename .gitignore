@@ -3,3 +3,7 @@ lib/
 *.tgz
 .rc6-check/
 coverage/
+
+.pnpm-store/
+
+.pnpm-store/

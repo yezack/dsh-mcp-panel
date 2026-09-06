@@ -54,6 +54,7 @@ import { createTrialCaller, validateTrialRequest, type McpAgentRegistryFace, typ
 import { probeJob, PROBE_KIND, type ProbeTarget } from './probe.ts'
 import { sanitizeText } from './sanitize.ts'
 import { exportMcpConfigs, parseMcpConfigsImport } from './config-io.ts'
+import { scanConfigLayers } from './layers.ts'
 import type { McpServerStatus, McpStatusPhase } from './upstream.ts'
 import type {
   McpCatalogEntryView,
@@ -295,6 +296,10 @@ private readonly trialCaller = createTrialCaller()
     const configuredNames = rows.map(row => serverNameOf(row.config, `entry:${row.entryId}`))
     const groups = groupMcpTools(schemas, configuredNames)
     const catalog = this.ctx.get('mcpCatalog') as { listResources?: unknown; listPrompts?: unknown } | undefined
+    // Cross-layer inventory: rows that exist in the profile's own layer files
+    // and in every agent-preset layer, annotated with provenance. Read-only;
+    // the loader rows above stay the source of truth for what is effective.
+    const configLayers = scanConfigLayers(this.profileDir(), rows)
     return aggregateSnapshot({
       rows,
       groups,
@@ -306,6 +311,7 @@ private readonly trialCaller = createTrialCaller()
       },
       probes: this.probeViews(),
       patchFile: this.patchFile(),
+      configLayers,
       refreshIntervalMs: this.config.refreshIntervalMs,
       capabilities: {
         resources: { available: typeof catalog?.listResources === 'function' },
@@ -643,12 +649,20 @@ private readonly trialCaller = createTrialCaller()
       .slice(0, this.config.maxProbes)
   }
 
-  /** Absolute path of the profile patch layer the console writes, or null. */
-  private patchFile(): string | null {
+  /**
+   * Absolute profile directory (the layer files the loader composes), or null.
+   * Also the anchor for the cross-layer config inventory.
+   */
+  private profileDir(): string | null {
     const base = this.ctx.baseUrl
     if (typeof base !== 'string' || base === '') return null
-    const dir = base.startsWith('file://') ? fileURLToPath(base) : base
-    return join(dir, PROFILE_PATCH_FILENAME)
+    return base.startsWith('file://') ? fileURLToPath(base) : base
+  }
+
+  /** Absolute path of the profile patch layer the console writes, or null. */
+  private patchFile(): string | null {
+    const dir = this.profileDir()
+    return dir === null ? null : join(dir, PROFILE_PATCH_FILENAME)
   }
 }
 

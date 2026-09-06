@@ -47,6 +47,7 @@ const SNAPSHOT_BASE = {
   trial: { enabled: true, timeoutMs: 120_000, maxResultChars: 60_000 },
   writeEnabled: true,
   catalog: [],
+  configLayers: { scanned: false, error: null, entries: [] },
 } as const
 
 describe('connectionBadge', () => {

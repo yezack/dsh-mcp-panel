@@ -2,10 +2,11 @@
 
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import { filterServers, presentMcpPanel, probeBadge, summarizePanel, type BadgeTone, type PresentedServerRow } from './present.ts'
+import { coveredByServerCards, filterServers, presentMcpPanel, probeBadge, summarizePanel, type BadgeTone, type PresentedServerRow } from './present.ts'
 import { ServerEditor } from './ServerEditor.tsx'
 import { TrialConsole } from './TrialConsole.tsx'
 import type {
+  McpConfigOccurrenceView,
   McpPanelSnapshot,
   McpProbeView,
   McpServerView,
@@ -78,6 +79,13 @@ function diagnosticText(code: string, text: string, t: McpPanelTabProps['t']): s
   const key = `diag_${code}` as const
   const candidate = (t as unknown as (key: string) => string)(key)
   return candidate === key ? text : candidate
+}
+
+/** Config-state badge for one cross-layer occurrence (config fact, not connection). */
+function occurrenceBadge(occ: McpConfigOccurrenceView, t: McpPanelTabProps['t']): { tone: BadgeTone; label: string } {
+  if (occ.disabledDynamic) return { tone: 'warn', label: t('invDynamicState') }
+  if (occ.disabled === true) return { tone: 'muted', label: t('invDisabledState') }
+  return { tone: 'ok', label: t('invEnabledState') }
 }
 
 /** Render the MCP management console tab. */
@@ -354,6 +362,43 @@ export function McpPanelTab({ status, probe, previewPatch, writePatch, callTool,
               </ul>
             </>
           )}
+          {model.configLayers.error !== null ? (
+            <p className="dmcp-error-text" role="alert">{t('invError').replace('{error}', model.configLayers.error)}</p>
+          ) : null}
+          {(() => {
+            const extraEntries = model.configLayers.entries.filter(entry => !coveredByServerCards(entry))
+            if (!model.configLayers.scanned) return null
+            if (extraEntries.length === 0) return <p className="dmcp-status">{t('invEmpty')}</p>
+            return (
+              <>
+                <h3 className="dmcp-heading">{t('invHeading')}</h3>
+                <p className="dmcp-summary">{t('invCaption')}</p>
+                <ul className="dmcp-inventory">
+                  {extraEntries.map(entry => (
+                    <li className="dmcp-inv-entry" key={entry.serverName} data-mcp-config={entry.serverName}>
+                      <div className="dmcp-inv-line">
+                        <strong className="dmcp-card-title">{entry.serverName}</strong>
+                        <Badge tone={entry.profileVisible ? 'ok' : 'muted'} label={entry.profileVisible ? t('invProfile') : t('invPresetOnly')} />
+                        <Badge tone={entry.effective ? 'ok' : 'warn'} label={entry.effective ? t('invEffective') : t('invNotEffective')} />
+                      </div>
+                      <div className="dmcp-inv-occurrences">
+                        {entry.occurrences.map(occ => {
+                          const badge = occurrenceBadge(occ, t)
+                          return (
+                            <div className="dmcp-inv-occurrence" key={`${occ.layer}:${occ.entryId}`} title={occ.file}>
+                              <Badge tone={badge.tone} label={badge.label} />
+                              <span className="dmcp-inv-layer" data-layer={occ.layer}>{occ.layerLabel}</span>
+                              <code className="dmcp-inv-target">{occ.transport} {occ.target}</code>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )
+          })()}
           {!model.observed && !model.empty ? <p className="dmcp-derived-note">{t('derivedNote')}</p> : null}
           {probeError !== null ? <p className="dmcp-error-text" role="alert">{t('probeFailedAction')}: {probeError}</p> : null}
           {model.patchFile !== null ? (

@@ -63,6 +63,8 @@ export interface PresentedMcpPanel {
   readonly observed: boolean
   /** Absolute profile patch-layer path for the hint line, or null. */
   readonly patchFile: string | null
+  /** Read-only cross-layer MCP config inventory (profile layer + agent presets). */
+  readonly configLayers: McpPanelSnapshot['configLayers']
   /** Suggested refresh interval in ms (`0` = on demand only). */
   readonly refreshIntervalMs: number
   /** Resources/Prompts availability (feature-detected upstream catalog seam). */
@@ -140,11 +142,25 @@ export function presentMcpPanel(snapshot: McpPanelSnapshot, now = Date.now()): P
     empty: snapshot.servers.length === 0,
     observed: snapshot.observed,
     patchFile: snapshot.patchFile,
+    configLayers: snapshot.configLayers,
     refreshIntervalMs: snapshot.refreshIntervalMs,
     capabilities: snapshot.capabilities,
     trial: snapshot.trial,
     writeEnabled: snapshot.writeEnabled,
   }
+}
+
+/**
+ * Whether one inventory entry is already fully represented by the server
+ * cards above (profile-visible AND effective). Entries that are not are the
+ * ones the cross-layer inventory section must surface — preset-only rows and
+ * profile rows the loader has not picked up (yet).
+ *
+ * @param entry - one aggregated cross-layer entry.
+ * @returns true when the card list already shows this server namespace.
+ */
+export function coveredByServerCards(entry: McpPanelSnapshot['configLayers']['entries'][number]): boolean {
+  return entry.profileVisible && entry.effective
 }
 
 /**

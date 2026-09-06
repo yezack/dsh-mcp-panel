@@ -175,12 +175,61 @@ export interface McpCatalogEntryView {
   tags?: readonly string[]
 }
 
+/** One config layer kind the cross-layer inventory scans on disk. */
+export type McpConfigLayerKind = 'profile-cordis' | 'profile-patch' | 'agent-preset'
+
+/** One occurrence of an mcp-client row inside a scanned layer file. */
+export interface McpConfigOccurrenceView {
+  /** Loader entry id written in the layer file (e.g. `mcp-client-ida`). */
+  entryId: string
+  /** Server namespace from the row config. */
+  serverName: string
+  /** Which layer file this row lives in. */
+  layer: McpConfigLayerKind
+  /** Human display of the layer (profile file name, or the agent-preset label). */
+  layerLabel: string
+  /** Absolute file path that carries the row. */
+  file: string
+  /** Effective disabled state at this occurrence; `null` = a `!!js` expression (never evaluated). */
+  disabled: boolean | null
+  /** Whether the disabled fact is a `!!js` expression (`disabled` is then `null`). */
+  disabledDynamic: boolean
+  /** Declared transport. */
+  transport: McpTransport
+  /** Sanitized display target (stdio command line or redacted URL). */
+  target: string
+}
+
+/** One server namespace aggregated across every scanned layer. */
+export interface McpConfigEntryView {
+  /** Server namespace. */
+  serverName: string
+  /** True when at least one occurrence is configured in this profile's own layer files. */
+  profileVisible: boolean
+  /** True when a loader row for this namespace exists in the CURRENT snapshot. */
+  effective: boolean
+  /** Every occurrence, ordered profile layer files first, then agent presets. */
+  occurrences: readonly McpConfigOccurrenceView[]
+}
+
+/** The read-only cross-layer MCP config inventory (profile layer + agent presets). */
+export interface McpConfigInventoryView {
+  /** Whether a scan was possible (the profile directory was known). */
+  scanned: boolean
+  /** Whole-scan failure detail; `null` when the scan ran or had nothing to scan. */
+  error: string | null
+  /** Aggregated entries, sorted by server namespace. */
+  entries: readonly McpConfigEntryView[]
+}
+
 /** The complete panel snapshot served by `mcpPanel/status`. */
 export interface McpPanelSnapshot {
   /** True when the upstream `mcp/status` seam produced data this process. */
   observed: boolean
   /** Absolute path of the profile patch layer that the CRUD console writes. */
   patchFile: string | null
+  /** Read-only cross-layer MCP config inventory (profile layer + agent presets). */
+  configLayers: McpConfigInventoryView
   /** Suggested panel refresh interval in ms; `0` = the tab refreshes on demand only. */
   refreshIntervalMs: number
   /** One row per server namespace (configured rows first, leftover namespaces last). */
@@ -208,6 +257,26 @@ export interface McpPanelSnapshot {
 export const MCP_PANEL_SNAPSHOT_SCHEMA = z.object({
   observed: z.boolean(),
   patchFile: z.string().nullable(),
+  configLayers: z.object({
+    scanned: z.boolean(),
+    error: z.string().nullable(),
+    entries: z.array(z.object({
+      serverName: z.string(),
+      profileVisible: z.boolean(),
+      effective: z.boolean(),
+      occurrences: z.array(z.object({
+        entryId: z.string(),
+        serverName: z.string(),
+        layer: z.union([z.literal('profile-cordis'), z.literal('profile-patch'), z.literal('agent-preset')]),
+        layerLabel: z.string(),
+        file: z.string(),
+        disabled: z.boolean().nullable(),
+        disabledDynamic: z.boolean(),
+        transport: z.union([z.literal('stdio'), z.literal('streamable-http'), z.literal('unknown')]),
+        target: z.string(),
+      })),
+    })),
+  }),
   refreshIntervalMs: z.number().int(),
   servers: z.array(z.object({
     serverName: z.string(),

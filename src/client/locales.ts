@@ -130,6 +130,21 @@ export const zh = {
   capResources: 'Resources',
   capPrompts: 'Prompts',
   capPending: '待官方支持——官方 client 尚未桥接该能力（Tools 是当前唯一桥接的 MCP 能力）。',
+  // --- Cross-layer config inventory ---
+  invHeading: '其他 MCP 配置（跨层）',
+  invCaption: '这些行来自 profile 层与 agent 预设层，但当前服务器卡片未覆盖（预设作用域，或尚未被 loader 加载）。只读展示：来源层 + 可见性 + 启用状态；如需在当前 profile 使用，请把对应行加入 profile patch 层。',
+  invEmpty: 'profile 层与 agent 预设层中无其他 MCP 配置。',
+  invError: '跨层扫描部分失败：{error}',
+  invEffective: '当前生效',
+  invNotEffective: '未生效',
+  invProfile: 'profile 可见',
+  invPresetOnly: '仅预设层',
+  invEnabledState: '启用',
+  invDisabledState: '停用',
+  invDynamicState: '条件(!!js)',
+  invLocation: '位置',
+  invState: '状态',
+  invVisibility: '可见性',
 } satisfies Record<string, string>
 
 /** MCP panel locale key union. */
@@ -265,4 +280,19 @@ export const en = {
   capResources: 'Resources',
   capPrompts: 'Prompts',
   capPending: 'Pending upstream support — the official client does not bridge this capability yet (tools are the only bridged MCP capability today).',
+  // --- Cross-layer config inventory ---
+  invHeading: 'Other MCP configs (across layers)',
+  invCaption: 'These rows live in the profile layer or in agent-preset layers and are not covered by the server cards above (preset-scoped, or not yet picked up by the loader). Read-only: source layer + visibility + enabled state. To use one in this profile, add its row to the profile patch layer.',
+  invEmpty: 'No other MCP configs in the profile layer or agent-preset layers.',
+  invError: 'Cross-layer scan partially failed: {error}',
+  invEffective: 'Effective now',
+  invNotEffective: 'Not effective',
+  invProfile: 'Profile-visible',
+  invPresetOnly: 'Preset-only',
+  invEnabledState: 'Enabled',
+  invDisabledState: 'Disabled',
+  invDynamicState: 'Conditional (!!js)',
+  invLocation: 'Location',
+  invState: 'State',
+  invVisibility: 'Visibility',
 } satisfies Record<McpPanelLocaleKey, string>

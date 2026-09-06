@@ -71,6 +71,10 @@ export interface CommandMessages {
   callUsage: string
   /** One-line trial-call summary (tool, callId, duration, outcome). */
   callResult: (tool: string, callId: string, ms: number, outcome: string) => string
+  /** Header above the cross-layer inventory lines (rows not effective here). */
+  inventoryHeader: string
+  /** One inventory line: a server namespace plus its layer/state occurrences. */
+  inventoryEntry: (server: string, occurrences: string) => string
 }
 
 /** English output dictionary (default). */
@@ -110,6 +114,8 @@ export const EN_MESSAGES: CommandMessages = {
   callUsage: 'Usage: /mcp <server> call <tool> [json-arguments]',
   callResult: (tool, callId, ms, outcome) =>
     `Trial call ${tool} through the official tool pipeline (${callId}, ${ms}ms): ${outcome}.`,
+  inventoryHeader: 'MCP configs present in other layers (not effective in this profile):',
+  inventoryEntry: (server, occurrences) => `- ${server} — ${occurrences}`,
 }
 
 /** Simplified Chinese output dictionary. */
@@ -151,6 +157,8 @@ export const ZH_MESSAGES: CommandMessages = {
   callUsage: '用法：/mcp <server> call <tool> [json-参数]',
   callResult: (tool, callId, ms, outcome) =>
     `试用调用 ${tool}（官方工具管线，${callId}，${ms}ms）：${outcome}。`,
+  inventoryHeader: '其他层的 MCP 配置（当前 profile 未生效）：',
+  inventoryEntry: (server, occurrences) => `- ${server} — ${occurrences}`,
 }
 
 /** Spanish output dictionary. */
@@ -192,6 +200,8 @@ export const ES_MESSAGES: CommandMessages = {
   callUsage: 'Uso: /mcp <server> call <tool> [json-argumentos]',
   callResult: (tool, callId, ms, outcome) =>
     `Llamada de prueba ${tool} por el pipeline oficial de herramientas (${callId}, ${ms}ms): ${outcome}.`,
+  inventoryHeader: 'Configuraciones MCP en otras capas (no efectivas en este perfil):',
+  inventoryEntry: (server, occurrences) => `- ${server} — ${occurrences}`,
 }
 
 /** Portuguese output dictionary. */
@@ -233,6 +243,8 @@ export const PT_MESSAGES: CommandMessages = {
   callUsage: 'Uso: /mcp <server> call <tool> [json-argumentos]',
   callResult: (tool, callId, ms, outcome) =>
     `Chamada de teste ${tool} pelo pipeline oficial de ferramentas (${callId}, ${ms}ms): ${outcome}.`,
+  inventoryHeader: 'Configurações MCP em outras camadas (não efetivas neste perfil):',
+  inventoryEntry: (server, occurrences) => `- ${server} — ${occurrences}`,
 }
 
 /** Hindi output dictionary. */
@@ -274,6 +286,8 @@ export const HI_MESSAGES: CommandMessages = {
   callUsage: 'उपयोग: /mcp <server> call <tool> [json-तर्क]',
   callResult: (tool, callId, ms, outcome) =>
     `आधिकारिक टूल पाइपलाइन से परीक्षण कॉल ${tool} (${callId}, ${ms}ms): ${outcome}।`,
+  inventoryHeader: 'अन्य परतों में MCP कॉन्फ़िगरेशन (इस प्रोफ़ाइल में प्रभावी नहीं):',
+  inventoryEntry: (server, occurrences) => `- ${server} — ${occurrences}`,
 }
 
 /** Every output dictionary indexed by the configured language. */
@@ -336,8 +350,38 @@ export function renderList(snapshot: McpPanelSnapshot, messages: CommandMessages
   }
   const lines = [messages.serversHeader(snapshot.servers.length)]
   for (const view of snapshot.servers) lines.push(renderServer(view, messages))
+  const inventory = renderInventory(snapshot, messages)
+  if (inventory !== '') lines.push('', inventory)
   if (!snapshot.observed) {
     lines.push(messages.noteNoSeam, messages.noteProposal)
+  }
+  return lines.join('\n')
+}
+
+/**
+ * Render the cross-layer inventory lines: mcp-client rows that exist in the
+ * profile layer or agent-preset layers but are NOT effective in the current
+ * loader scope (so they are not listed above). Read-only description — the
+ * command never edits other layers.
+ *
+ * @param snapshot - the current snapshot.
+ * @param messages - the output dictionary.
+ * @returns the inventory text, or '' when there is nothing extra.
+ */
+export function renderInventory(snapshot: McpPanelSnapshot, messages: CommandMessages = EN_MESSAGES): string {
+  const configLayers = snapshot.configLayers
+  if (configLayers === undefined || !configLayers.scanned) return ''
+  const extra = configLayers.entries.filter(entry => !entry.effective)
+  if (extra.length === 0) return ''
+  const lines = [messages.inventoryHeader]
+  for (const entry of extra) {
+    const occurrences = entry.occurrences
+      .map((occ) => {
+        const state = occ.disabledDynamic ? messages.enabled + '/!!js' : occ.disabled === true ? messages.disabled : messages.enabled
+        return `${occ.layerLabel} (${state})`
+      })
+      .join('; ')
+    lines.push(messages.inventoryEntry(entry.serverName, occurrences))
   }
   return lines.join('\n')
 }
