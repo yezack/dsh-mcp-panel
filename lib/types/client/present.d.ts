@@ -94,16 +94,6 @@ export declare function probeBadge(status: McpProbeView['status']): {
  */
 export declare function presentMcpPanel(snapshot: McpPanelSnapshot, now?: number): PresentedMcpPanel;
 /**
- * Whether one inventory entry is already fully represented by the server
- * cards above (profile-visible AND effective). Entries that are not are the
- * ones the cross-layer inventory section must surface — preset-only rows and
- * profile rows the loader has not picked up (yet).
- *
- * @param entry - one aggregated cross-layer entry.
- * @returns true when the card list already shows this server namespace.
- */
-export declare function coveredByServerCards(entry: McpPanelSnapshot['configLayers']['entries'][number]): boolean;
-/**
  * Count the summary facts for the tab header line. Counting is derived from
  * the same badge codes the cards show, so the line can never disagree with
  * the rows beneath it.

@@ -471,44 +471,22 @@ const PANEL_CSS = `
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 [data-dsh-mcp-panel] .dmcp-inv-entry {
-  border: 1px solid var(--dsw-alias-border-subtle, rgba(128, 128, 128, 0.35));
-  border-radius: 8px;
-  padding: 8px 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+[data-dsh-mcp-panel] .dmcp-inv-modes {
+  color: var(--dsw-alias-label-secondary);
+  font-size: 0.9em;
+}
+[data-dsh-mcp-panel] .dmcp-inventory-note {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-[data-dsh-mcp-panel] .dmcp-inv-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-[data-dsh-mcp-panel] .dmcp-inv-occurrences {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-[data-dsh-mcp-panel] .dmcp-inv-occurrence {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-[data-dsh-mcp-panel] .dmcp-inv-layer {
-  font-size: 0.85em;
-  color: var(--dsw-alias-label-secondary);
-}
-[data-dsh-mcp-panel] .dmcp-inv-layer[data-layer='profile-cordis'],
-[data-dsh-mcp-panel] .dmcp-inv-layer[data-layer='profile-patch'] {
-  color: var(--dsw-alias-accent, inherit);
-}
-[data-dsh-mcp-panel] .dmcp-inv-target {
-  color: var(--dsw-alias-label-tertiary);
-  font-family: var(--dsw-alias-font-mono, monospace);
-  font-size: 0.85em;
+  margin-top: 6px;
 }
 `

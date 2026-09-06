@@ -151,19 +151,6 @@ export function presentMcpPanel(snapshot: McpPanelSnapshot, now = Date.now()): P
 }
 
 /**
- * Whether one inventory entry is already fully represented by the server
- * cards above (profile-visible AND effective). Entries that are not are the
- * ones the cross-layer inventory section must surface — preset-only rows and
- * profile rows the loader has not picked up (yet).
- *
- * @param entry - one aggregated cross-layer entry.
- * @returns true when the card list already shows this server namespace.
- */
-export function coveredByServerCards(entry: McpPanelSnapshot['configLayers']['entries'][number]): boolean {
-  return entry.profileVisible && entry.effective
-}
-
-/**
  * Count the summary facts for the tab header line. Counting is derived from
  * the same badge codes the cards show, so the line can never disagree with
  * the rows beneath it.

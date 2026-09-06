@@ -126,19 +126,7 @@ export declare const zh: {
     capPrompts: string;
     capPending: string;
     invHeading: string;
-    invCaption: string;
-    invEmpty: string;
-    invError: string;
-    invEffective: string;
-    invNotEffective: string;
-    invProfile: string;
-    invPresetOnly: string;
-    invEnabledState: string;
-    invDisabledState: string;
-    invDynamicState: string;
-    invLocation: string;
-    invState: string;
-    invVisibility: string;
+    invUnavailable: string;
 };
 /** MCP panel locale key union. */
 export type McpPanelLocaleKey = keyof typeof zh;
@@ -269,18 +257,6 @@ export declare const en: {
     capPrompts: string;
     capPending: string;
     invHeading: string;
-    invCaption: string;
-    invEmpty: string;
-    invError: string;
-    invEffective: string;
-    invNotEffective: string;
-    invProfile: string;
-    invPresetOnly: string;
-    invEnabledState: string;
-    invDisabledState: string;
-    invDynamicState: string;
-    invLocation: string;
-    invState: string;
-    invVisibility: string;
+    invUnavailable: string;
 };
 //# sourceMappingURL=locales.d.ts.map
