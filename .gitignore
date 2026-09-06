@@ -1,5 +1,4 @@
 node_modules/
-lib/
 *.tgz
 .rc6-check/
 coverage/
@@ -7,3 +6,4 @@ coverage/
 .pnpm-store/
 
 .pnpm-store/
+
