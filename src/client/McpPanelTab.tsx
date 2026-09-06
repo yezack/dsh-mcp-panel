@@ -354,20 +354,29 @@ export function McpPanelTab({ status, probe, previewPatch, writePatch, callTool,
               </ul>
             </>
           )}
-          {model.configLayers.entries.some(entry => !entry.effective) ? (
-            <div className="dmcp-inventory-note">
-              <h3 className="dmcp-heading">{t('invHeading')}</h3>
-              <ul className="dmcp-inventory">
-                {model.configLayers.entries.filter(entry => !entry.effective).map(entry => (
-                  <li className="dmcp-inv-entry" key={entry.serverName} data-mcp-config={entry.serverName}>
-                    <strong className="dmcp-card-title">{entry.serverName}</strong>
-                    <Badge tone="muted" label={t('invUnavailable')} />
-                    <span className="dmcp-inv-modes">{entry.occurrences.map(occ => occ.layerLabel).join(' / ')}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+          {(() => {
+            const modeEntries = model.configLayers.entries.filter(entry => !entry.profileVisible)
+            if (modeEntries.length === 0) return null
+            return (
+              <div className="dmcp-inventory-note">
+                <h3 className="dmcp-heading">{t('invHeading')}</h3>
+                <ul className="dmcp-inventory">
+                  {modeEntries.map(entry => {
+                    const modes = entry.occurrences.map(occ => {
+                      const suffix = occ.disabledDynamic ? `（${t('invConditionalTag')}）` : occ.disabled === true ? `（${t('invDisabledTag')}）` : ''
+                      return `${occ.layerLabel}${suffix}`
+                    })
+                    return (
+                      <li className="dmcp-inv-entry" key={entry.serverName} data-mcp-config={entry.serverName}>
+                        <strong className="dmcp-card-title">{entry.serverName}</strong>
+                        <span className="dmcp-inv-modes">{modes.join(' · ')}</span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )
+          })()}
           {!model.observed && !model.empty ? <p className="dmcp-derived-note">{t('derivedNote')}</p> : null}
           {probeError !== null ? <p className="dmcp-error-text" role="alert">{t('probeFailedAction')}: {probeError}</p> : null}
           {model.patchFile !== null ? (

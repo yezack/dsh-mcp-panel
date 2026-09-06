@@ -130,9 +130,10 @@ export const zh = {
   capResources: 'Resources',
   capPrompts: 'Prompts',
   capPending: '待官方支持——官方 client 尚未桥接该能力（Tools 是当前唯一桥接的 MCP 能力）。',
-  // --- Cross-layer config inventory ---
-  invHeading: '以下 MCP 服务器仅在其他模式下配置',
-  invUnavailable: '当前模式不可用',
+  // --- Preset-mode server listing ---
+  invHeading: '预设模式专属的 MCP 服务器',
+  invDisabledTag: '已停用',
+  invConditionalTag: '条件(!!js)',
 } satisfies Record<string, string>
 
 /** MCP panel locale key union. */
@@ -268,7 +269,8 @@ export const en = {
   capResources: 'Resources',
   capPrompts: 'Prompts',
   capPending: 'Pending upstream support — the official client does not bridge this capability yet (tools are the only bridged MCP capability today).',
-  // --- Cross-layer config inventory ---
-  invHeading: 'These MCP servers are only configured for other modes',
-  invUnavailable: 'Unavailable in this mode',
+  // --- Preset-mode server listing ---
+  invHeading: 'MCP servers configured for preset modes only',
+  invDisabledTag: 'disabled',
+  invConditionalTag: 'conditional (!!js)',
 } satisfies Record<McpPanelLocaleKey, string>

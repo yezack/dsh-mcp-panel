@@ -126,7 +126,8 @@ export declare const zh: {
     capPrompts: string;
     capPending: string;
     invHeading: string;
-    invUnavailable: string;
+    invDisabledTag: string;
+    invConditionalTag: string;
 };
 /** MCP panel locale key union. */
 export type McpPanelLocaleKey = keyof typeof zh;
@@ -257,6 +258,7 @@ export declare const en: {
     capPrompts: string;
     capPending: string;
     invHeading: string;
-    invUnavailable: string;
+    invDisabledTag: string;
+    invConditionalTag: string;
 };
 //# sourceMappingURL=locales.d.ts.map
