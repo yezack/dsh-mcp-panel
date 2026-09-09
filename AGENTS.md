@@ -29,7 +29,9 @@ Schema in `src/config.ts` (Schemastery, fail-loud bounds, explicit `resolveConfi
 
 ## Build
 
-`typescript` + `tsdown` are regular `dependencies` on purpose: pnpm does not install devDependencies of git-hosted packages, and the git channel's `prepare` must build with production dependencies alone. `scripts/prepare.mjs` is the single build entry (tsc declarations → `lib/types`, tsdown bundles → `lib/index.js` + `lib/typert.host.js` + `lib/client.js`).
+`typescript` + `tsdown` are regular `dependencies` on purpose: they must be installable without devDependencies (pnpm does not install devDependencies of git-hosted packages). `scripts/prepare.mjs` is the single build entry (tsc declarations → `lib/types`, tsdown bundles → `lib/index.js` + `lib/typert.host.js` + `lib/client.js`), run explicitly with `pnpm run build`.
+
+`lib/` IS committed: git-hosted installs (`github:yezack/dsh-mcp-panel`) ship only committed files, and the package deliberately declares NO `prepare` script — a git install therefore runs no build scripts at all (no inner pnpm install, no pnpm-managed-version switch, no `allowBuilds` allowlist entry needed per commit). Rebuild + commit `lib/` together with any source change.
 
 ## Checks
 
